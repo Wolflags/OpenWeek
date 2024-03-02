@@ -9,7 +9,7 @@ client = openai.OpenAI(base_url="http://localhost:1234/v1", api_key="not-needed"
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    # Get the history and the user's message from the request body
+    # Get the history from the request body
     data = request.json
     history = data.get('history')
 
@@ -32,6 +32,5 @@ def chat():
             yield json.dumps({'error': str(e)}) + "\n"
 
     return Response(generate_responses(), mimetype='text/plain')
-
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
