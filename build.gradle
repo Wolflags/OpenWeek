@@ -24,6 +24,12 @@ dependencies {
     // En la versión 5.3.X separaron las clases del renderizado en otro proyecto
     implementation "io.javalin:javalin-rendering:5.5.0"
 
+    //sistemas de plantilla:
+    implementation 'org.thymeleaf:thymeleaf:3.1.1.RELEASE'
+
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0' // Verifica la versión más reciente
+
+
 
     //Procesamiento JSON para Javalin.
     implementation("com.fasterxml.jackson.core:jackson-core:2.15.2")
