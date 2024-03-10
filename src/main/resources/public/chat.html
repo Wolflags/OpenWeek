@@ -2,11 +2,15 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Chat en Vivo</title>
+    <title>Open House ICC</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins&display=swap">
+
     <style>
         #chatBox {
             width: 80%;
-            height: 300px;
+            height: 600px;
             border: 1px solid #ddd;
             margin: 0 auto;
             overflow-y: scroll;
@@ -17,53 +21,174 @@
             padding: 10px;
         }
         #sendButton {
-            width: 20%;
+            width: 40px;
+            height: 37px;
+            padding: 0;
+        }
+        .message {
+            margin-bottom: 10px;
             padding: 10px;
+            border-radius: 5px;
+            /*font-family: 'Courier New', Courier, monospace;*/
+        }
+        .user-message {
+            background-color: #d1ecf1;
+            color: #002e45;
+        }
+        .assistant-message {
+
+
+        }
+        .navbar-text {
+            font-family: 'Poppins', sans-serif;
+            font-weight: bold;
+            font-size: 2em;
+            margin-right: 100px;
+
+        }
+        .navbar {
+            background-color: #1e73c1 !important;
         }
     </style>
+
 </head>
 <body>
-<div id="chatBox"></div>
-<input type="text" id="messageInput" placeholder="Escribe tu mensaje aquÃ­...">
-<button id="sendButton">Enviar</button>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="#">
+        <img src="pucmm.png" width="60" height="60" class="d-inline-block align-top" alt="">
+    </a>
+    <div class="collapse navbar-collapse justify-content-center">
+      <span class="navbar-text text-white">
+        Open House 2024
+      </span>
+    </div>
+<!--    <a class="navbar-brand" href="#">-->
+<!--        <img src="logo_cicc.png" width="60" height="60" class="d-inline-block align-top" alt="">-->
+<!--    </a>-->
+</nav>
+<br>
+<div id="chatBox" class="border rounded p-3 bg-light shadow-sm">
+    <div class="d-flex justify-content-center">
+
+    <img src="logo_cicc.png" width="120" height="120">
+
+    </div>
+<!--    <br>-->
+<!--    <div class="d-flex justify-content-center">-->
+<!--    <p>Como puedo ayudarte?</p>-->
+<!--    </div>-->
+</div>
+<br>
+<br>
+<div class="d-flex justify-content-center">
+    <div class="input-group col-12 col-sm-8 col-md-6 col-lg-8" style="align-items: center;">
+        <input required type="text" class="form-control" id="messageInput" placeholder="Escribe tu mensaje aqu&iacute;..." style="border-radius: 5px;">
+        <div class="input-group-append">
+            <button id="sendButton" class="btn btn-primary" style="align-self: center; margin-left: 10px; border-radius: 5px; background-color: #1e73c1;">
+            <i class="fas fa-arrow-right"></i>
+</button>
+        </div>
+    </div>
+</div>
 
 <script>
     var ws = new WebSocket("ws://localhost:7000/chat");
-    var messageHistory = []; // Initialize an empty history
+var initialHistory = [{"role": "system", "content": "Eres un asistente inteligente para una presentacion en una actividad llamada Open House" +
+        " en la Pontificia Universidad Católica Madre y Maestra de Santiago de los Caballeros (PUCMM), República Dominicana." +
+        " Específicamente la carrera de Ingeniería en Ciencias de la Computación." +
+        " Tu nombre es Asistente Virtual del Open House." +
+        " Siempre hablas español." +
+        " Tus mensajes estrictamente nunca superan las 20 palabras." +
+        " NUNCA DEBES INVENTAR INFORMACION QUE NO SABES, SI NO SABES ALGO DEBES DECIR QUE NO LO SABES." +
+        "El evento será celebrado el jueves 07 de marzo de 2024 y viernes 08 de marzo de 2024 entre las 8:00 AM y las 12:00 PM del día, estará ubicado en el salón de usos múltiples en el cuál se expondrán todas las carreras de la Pontificia Univeridad Católica Madre y Maestra (PUCMM) pero estarás centrado en la carrera de Ingeniería en Ciencias de la Computación." +
+        "Perfil del egresado" +
+        "El egresado de la Carrera de Ingeniería en Ciencias de la Computación es un profesional competente, crítico, humanista, líder y emprendedor. Cuenta con una formación sólida en las diversas áreas del conocimiento tales como: fundamentos de las ciencias básicas y de las ciencias de la ingeniería para la resolución de problemas de todo ámbito, proyectos enfocados en la gestión adecuada de la información, el desarrollo de proyectos de ingeniería de Software en una amplia gama de plataformas y en el diseño de sistemas inteligentes; lo que le permite involucrarse eficazmente en actividades de investigación, desarrollo , administración de equipos técnicos relacionados con su profesión, transferencia y/o adaptación de tecnología." +
+        "Ambito laboral" +
+        "El ingeniero en Ciencias de la Computación posee bases sólidas de conocimiento sobre ingeniería de software, ciencias computacionales, desarrollo de sistemas, arquitectura de la información, infraestructura computacional y gestión de proyectos. Es un especialista en diseño, desarrollo, prueba, implantación y mantenimiento en sistemas computacionales. Está facultado para asegurar la continuidad de la operación de la infraestructura de sistemas de software de las organizaciones. DURACIÓN 4 años CAMPUS Santiago y Santo Domingo" +
+        "Las materias son: Introduccion a la Algoritmia, Electiva de Historia y Sociedad Mundial, Espanol I, Razonamiento Logico-Matematico, Electiva de Ciencia y Humanismo, Precalculo, Espanol II, Estructuras Discretas, Electiva de Filosofia, Calculo Diferencial, Fundamentos de Programacion, Electiva de Deporte, Funds de Sist. Computacionales, Programacion Orientada a Objetos, Calculo Integral, Mecanica Newtoniana, Lab. FIS-139, Algebra Lineal, Ingles I, Electricidad y Magnetismo, Lab. FIS-219, Calculo Vectorial, Electiva de Literatura, Algoritmos Clasicos y Estructuras de Datos, Ingles II, Ecuaciones Diferenciales, Ondas, Fluidos y Termodinamica, Lab. FIS-229, Diseno y Analisis de Algoritmos, Electiva de Arte, Electiva I Estudios Teologicos, Electiva de Ciencia Ambiental, Lab. CN-E01, Ingles III, Bases de Datos, Probabilidad y Estadistica para Ingenieros, Electiva de Historia y Sociedad Dominicana, Fundamentos de Redes, Lab. ITT-102, Inteligencia de Negocios, Introduccion a la Ingenieria de Software, Sistemas Operativos, Ingles para las Ingenierias, Arquitectura de Software, Programacion Web, Introduccion a la Inteligencia Artificial, Programacion Funcional, Contabilidad para Ciencias de la Computacion, Etica de las Profesiones ARQ/ING, Programacion Paralela y Concurrente, Electiva de Inteligencia Artificial, Proyecto Integrador de Desarrollo de Software, Metodologia de la Investigacion, Gestion de Proyectos, Desarrollo de Aplicaciones Moviles, Electiva I de ICC, Anteproyecto de Grado ICC, Emprendimiento de Base Tecnologica, Electiva de Desarrollo Basado en Plataformas, Electiva II de ICC, Proyecto de Grado ICC, Aseguramiento de la Calidad del Software, Electiva II Estudios Teologicos, Electiva III de ICC." +
+        "El director de la carrera de ciencias de la computación es el Ing. Carlos Camacho" +
+        "Hoy es viernes, el segundo dia" +
+        " Siempre debes ser respetuoso y amigable. Siempre debes estar disponible para responder preguntas."}];
+var messageHistory = initialHistory.slice();
+var assistantMessage = ""; // Variable para almacenar el mensaje del asistente
+var assistantMessageElement = null; // Variable para almacenar el elemento del mensaje del asistente
 
-    ws.onopen = function() {
-        console.log("Conectado al WebSocket");
-    };
+    setTimeout(function() {
+        ws.close();
+    }, 3600000*5);
+
+    setInterval(function() {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send('ping');
+        }
+    }, 300);
+
+ws.onopen = function() {
+    console.log("Conectado al WebSocket");
+};
 
     ws.onmessage = function(event) {
-        var message = JSON.parse(event.data);
-        document.getElementById("chatBox").innerHTML += message + '';
-    };
+        if (event.data === 'pong') {
+            console.log('Connection is alive');
+        } else {
+            var message = JSON.parse(event.data);
 
-    ws.onerror = function(error) {
-        console.log("Error en WebSocket: ", error);
-    };
+            // Agrega el chunk al mensaje del asistente
+            assistantMessage += message;
+
+            if (assistantMessageElement === null) {
+                // Si es el primer chunk de un nuevo mensaje, crea un nuevo div
+                assistantMessageElement = document.createElement('div');
+                assistantMessageElement.classList.add('message', 'assistant-message');
+                document.getElementById("chatBox").appendChild(assistantMessageElement);
+            }
+
+            // Actualiza el contenido del div con el mensaje del asistente
+            assistantMessageElement.innerHTML = assistantMessage;
+
+            // Desplaza el chatbox al último mensaje
+            assistantMessageElement.scrollIntoView();
+        }
+
+};
+
+ws.onerror = function(error) {
+    console.log("Error en WebSocket: ", error);
+};
 
     document.getElementById("sendButton").onclick = function() {
-        var message = document.getElementById("messageInput").value;
-        messageHistory.push({role: 'user', content: message}); // Add the user's message to the history
-        console.log("Sending message: ", JSON.stringify({history: messageHistory})); // Log the message that's being sent
+    var message = document.getElementById("messageInput").value;
 
-        if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({history: messageHistory})); // Send the history to the server
-        } else {
-            console.log("WebSocket connection is not open. Ready state: ", ws.readyState);
-        }
+    // Agrega el mensaje del asistente y el mensaje del usuario al historial
+    messageHistory.push({role: 'assistant', content: assistantMessage});
+    messageHistory.push({role: 'user', content: message});
 
-        document.getElementById("chatBox").innerHTML += '<br>' + 'Yo: ' + message + '<br>'; // Agregar tu mensaje a la caja de chat
-        document.getElementById("messageInput").value = ''; // Limpiar el campo de entrada
-    };
+    console.log("Sending message: ", JSON.stringify({history: messageHistory})); // Log the message that's being sent
 
-    document.getElementById("messageInput").onkeypress = function(e) {
-        if (e.keyCode === 13) { // Tecla Enter
-            document.getElementById("sendButton").click();
-        }
-    };
+    if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({history: messageHistory})); // Send the history to the server
+    } else {
+        console.log("WebSocket connection is not open. Ready state: ", ws.readyState);
+    }
+
+    var messageElement = document.createElement('div');
+    messageElement.classList.add('message', 'user-message');
+    messageElement.innerHTML = 'Yo: ' + message;
+    document.getElementById("chatBox").appendChild(messageElement); // Agregar tu mensaje a la caja de chat
+    document.getElementById("messageInput").value = ''; // Limpiar el campo de entrada
+
+    assistantMessage = ""; // Reinicia el mensaje del asistente para el próximo mensaje
+    assistantMessageElement = null; // Reinicia el elemento del mensaje del asistente para el próximo mensaje
+
+    // Desplaza el chatbox al último mensaje
+    messageElement.scrollIntoView();
+};
+
+document.getElementById("messageInput").onkeypress = function(e) {
+    if (e.keyCode === 13) { // Tecla Enter
+        document.getElementById("sendButton").click();
+    }
+};
 </script>
 </body>
 </html>
